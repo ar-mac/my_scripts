@@ -4,11 +4,13 @@
 # Description: Removes local Git branches older than a specified number of days and containing "QUEST-" in their name.
 # Usage: ./remove_old_branches.sh [options]
 # Options:
+#   -d               Use the -d option for deleting only merged branches.
 #   -D               Use the -D option for deleting branches (force deletion).
-#   --dry-run        Only list the branches that would be removed without deleting them.
+#   --dry-run        Only list the branches that would be removed without deleting them. Default: true
 #   -days=N          Specify the number of days (N) for considering branches as old. Default: 90 days.
 #
-# Note: The default behavior is to use the -d option for deleting branches, which only deletes branches that have been fully merged.
+# Note: The default behavior is --dry-run that shows which branches are to be removed.
+# To actually delete them use the -d or -D option.
 
 # Get the current date
 current_date=$(date +%s)
@@ -17,18 +19,20 @@ current_date=$(date +%s)
 days=90
 
 # Parse command-line arguments
-delete_option="-d" # Default: -d option
-dry_run=false
+delete_option="" # Default: no option
+dry_run=true # Default: dry run
 
 while [[ $# -gt 0 ]]; do
   key="$1"
   case $key in
     -D)
       delete_option="-D" # Use -D option for deletion
+      dry_run=false
       shift
       ;;
-    --dry-run)
-      dry_run=true
+    -d)
+      delete_option="-d" # Use -d option for deletion
+      dry_run=false
       shift
       ;;
     -days=*)
@@ -46,7 +50,7 @@ done
 days_in_seconds=$((days * 24 * 60 * 60))
 
 if [ "$dry_run" = true ]; then
-  echo "Branches to be removed:"
+  echo "Branches longer than ${days} day(s) to be removed:"
 fi
 has_branches_to_remove=false
 # Iterate through all local branches
@@ -69,6 +73,7 @@ for branch in $(git branch --format='%(refname:short)'); do
     fi
   fi
 done
+
 if [ "$has_branches_to_remove" = false ]; then
-  echo "No branches"
+  echo "No branches to remove."
 fi

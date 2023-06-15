@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Create initial JSON file
-echo '[]' > commits.json
+# Create initial CSV file
+echo "date,jsFiles,tsFiles" > commits.csv
 
 # Find merge commits younger than 1 year
 merge_commits=$(git log --merges --since="1 year ago" --pretty=format:'%H')
@@ -21,10 +21,8 @@ do
   # Count tsFiles
   ts_files=$(find ./src -type f -regex ".*\.ts[x]*" | wc -l | tr -d '\n')
 
-  # Add new object to JSON file
-  new_entry=$(jq --arg date "$commit_date" --arg jsFiles "$js_files" --arg tsFiles "$ts_files" \
-    '. += [{"date": $date, "jsFiles": $jsFiles, "tsFiles": $tsFiles}]' commits.json)
-  echo $new_entry > commits.json
+   Append new entry to CSV file
+    echo "$commit_date,$js_files,$ts_files" >> commits.csv
 
 done
 

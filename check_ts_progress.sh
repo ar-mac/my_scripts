@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Create initial CSV file
+# Create initial CSV file with header
 echo "date,jsFiles,tsFiles" > commits.csv
 
 # Find merge commits younger than 1 year
@@ -21,8 +21,10 @@ do
   # Count tsFiles
   ts_files=$(find ./src -type f -regex ".*\.ts[x]*" | wc -l | tr -d '\n')
 
-   Append new entry to CSV file
+  # Append to CSV only if tsFiles is not 0
+  if [ $ts_files -ne 0 ]; then
     echo "$commit_date,$js_files,$ts_files" >> commits.csv
+  fi
 
 done
 
